@@ -1,5 +1,5 @@
 {
-  "name": "bulwark",
+  "name": "promptwall",
   "version": "0.1.0",
   "description": "helmet.js for LLM apps \u2014 protect against prompt injection, jailbreak, and data exfiltration (PII/PHI/PCI)",
   "main": "dist/index.js",
@@ -37,11 +37,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TharVid/bulwark"
+    "url": "https://github.com/TharVid/promptwall"
   },
-  "homepage": "https://github.com/TharVid/bulwark#readme",
+  "homepage": "https://github.com/TharVid/promptwall#readme",
   "bugs": {
-    "url": "https://github.com/TharVid/bulwark/issues"
+    "url": "https://github.com/TharVid/promptwall/issues"
   },
   "engines": {
     "node": ">=18.0.0"

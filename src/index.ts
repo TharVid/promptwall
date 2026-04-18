@@ -1,21 +1,21 @@
 /**
- * Bulwark — helmet.js for LLM apps
+ * Promptwall — helmet.js for LLM apps
  *
  * Quick start:
- *   import bulwark from 'bulwark';
- *   const guard = bulwark();
+ *   import promptwall from 'promptwall';
+ *   const guard = promptwall();
  *   const result = await guard.scan(userInput);
  *   if (!result.safe) console.log('Threat detected:', result.findings);
  *
  * With specific rules:
- *   const guard = bulwark({ rules: [bulwark.pii(), bulwark.injection()] });
+ *   const guard = promptwall({ rules: [promptwall.pii(), promptwall.injection()] });
  *
  * Wrap an LLM call:
  *   const safeLLM = guard.wrap(myLLMCall);
  *   const response = await safeLLM('Hello world');
  */
 
-import { Bulwark, BulwarkError } from './bulwark';
+import { Promptwall, PromptwallError } from './promptwall';
 import { jailbreak } from './rules/jailbreak';
 import { injection } from './rules/injection';
 import { pii } from './rules/pii';
@@ -25,8 +25,8 @@ import { toxicity } from './rules/toxicity';
 import { defaultRules } from './rules';
 
 import type {
-  BulwarkOptions,
-  BulwarkMiddleware,
+  PromptwallOptions,
+  PromptwallMiddleware,
   ScanResult,
   ScanDirection,
   ActionMode,
@@ -45,26 +45,26 @@ import type {
 
 // ─── Factory function (default export) ──────────────────────────
 
-function bulwark(options?: BulwarkOptions): Bulwark {
-  return new Bulwark(options);
+function promptwall(options?: PromptwallOptions): Promptwall {
+  return new Promptwall(options);
 }
 
 // Attach rule factories as static methods for convenience:
-//   bulwark.pii(), bulwark.injection(), etc.
-bulwark.jailbreak = jailbreak;
-bulwark.injection = injection;
-bulwark.pii = pii;
-bulwark.phi = phi;
-bulwark.pci = pci;
-bulwark.toxicity = toxicity;
-bulwark.defaultRules = defaultRules;
+//   promptwall.pii(), promptwall.injection(), etc.
+promptwall.jailbreak = jailbreak;
+promptwall.injection = injection;
+promptwall.pii = pii;
+promptwall.phi = phi;
+promptwall.pci = pci;
+promptwall.toxicity = toxicity;
+promptwall.defaultRules = defaultRules;
 
 // ─── Exports ────────────────────────────────────────────────────
 
-export default bulwark;
+export default promptwall;
 
 // Named exports for fine-grained imports
-export { Bulwark, BulwarkError } from './bulwark';
+export { Promptwall, PromptwallError } from './promptwall';
 export { Scanner } from './scanner';
 export { AuditLogger } from './logger';
 export { BaseRule } from './rules/base';
@@ -79,8 +79,8 @@ export { redactByFindings, redactByPattern } from './redactor';
 export { normalizeText, hasEvasionIndicators } from './utils/normalizer';
 
 export type {
-  BulwarkOptions,
-  BulwarkMiddleware,
+  PromptwallOptions,
+  PromptwallMiddleware,
   ScanResult,
   ScanDirection,
   ActionMode,

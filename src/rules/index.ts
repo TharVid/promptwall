@@ -1,6 +1,6 @@
 /**
  * Rule exports — each is a factory function for easy plugin usage:
- *   bulwark({ rules: [bulwark.jailbreak(), bulwark.pii(), ...] })
+ *   promptwall({ rules: [promptwall.jailbreak(), promptwall.pii(), ...] })
  */
 
 export { BaseRule } from './base';

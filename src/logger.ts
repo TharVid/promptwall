@@ -8,7 +8,7 @@ export type LogHandler = (event: AuditEvent) => void;
 
 const defaultLogHandler: LogHandler = (event) => {
   const level = event.action === 'pass' ? 'info' : 'warn';
-  const msg = `[bulwark] ${level}: direction=${event.direction} action=${event.action} score=${event.score.toFixed(2)} findings=${event.findings.length} duration=${event.duration}ms`;
+  const msg = `[promptwall] ${level}: direction=${event.direction} action=${event.action} score=${event.score.toFixed(2)} findings=${event.findings.length} duration=${event.duration}ms`;
 
   if (level === 'warn') {
     console.warn(msg);

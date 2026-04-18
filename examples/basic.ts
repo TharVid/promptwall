@@ -2,11 +2,11 @@
  * Basic usage — scan any text in 3 lines
  */
 
-import bulwark from '../src';
+import promptwall from '../src';
 
 async function main() {
   // 1. Create a guard (defaults: all rules, block mode, 0.7 threshold)
-  const guard = bulwark();
+  const guard = promptwall();
 
   // 2. Scan user input
   const result = await guard.scan('What is the capital of France?');
@@ -28,9 +28,9 @@ async function main() {
   console.log('Findings:', piiResult.findings.map(f => `${f.description}: "${f.matched}"`));
 
   // 5. Use redact mode
-  const redactor = bulwark({
+  const redactor = promptwall({
     mode: 'redact',
-    rules: [bulwark.pii(), bulwark.pci()],
+    rules: [promptwall.pii(), promptwall.pci()],
     threshold: 0.5,
   });
 
@@ -38,8 +38,8 @@ async function main() {
   console.log('\nRedacted:', redacted.redacted);
 
   // 6. Pick specific rules only
-  const lightGuard = bulwark({
-    rules: [bulwark.injection(), bulwark.pii()],
+  const lightGuard = promptwall({
+    rules: [promptwall.injection(), promptwall.pii()],
     logging: false,
   });
   const light = await lightGuard.scan('Hello world');

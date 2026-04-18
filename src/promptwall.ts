@@ -1,28 +1,28 @@
 /**
- * Bulwark — the core class
+ * Promptwall — the core class
  *
  * Usage:
- *   import bulwark from 'bulwark';
- *   const guard = bulwark();                           // all defaults
- *   const guard = bulwark({ mode: 'redact' });         // custom config
- *   const guard = bulwark({ rules: [bulwark.pii()] }); // specific rules
+ *   import promptwall from 'promptwall';
+ *   const guard = promptwall();                             // all defaults
+ *   const guard = promptwall({ mode: 'redact' });           // custom config
+ *   const guard = promptwall({ rules: [promptwall.pii()] }); // specific rules
  *
  *   const result = await guard.scan('some text');
  *   if (!result.safe) { ... }
  */
 
-import type { BulwarkOptions, BulwarkMiddleware, ScanResult, ScanDirection } from './types';
+import type { PromptwallOptions, PromptwallMiddleware, ScanResult, ScanDirection } from './types';
 import { Scanner } from './scanner';
 import { AuditLogger } from './logger';
 import { defaultRules } from './rules';
 
-export class Bulwark implements BulwarkMiddleware {
+export class Promptwall implements PromptwallMiddleware {
   private scanner: Scanner;
   private logger: AuditLogger;
   private direction: ScanDirection;
   private onDetection?: (result: ScanResult) => boolean | void;
 
-  constructor(options: BulwarkOptions = {}) {
+  constructor(options: PromptwallOptions = {}) {
     const rules = options.rules ?? defaultRules();
     const mode = options.mode ?? 'block';
     const threshold = options.threshold ?? 0.7;
@@ -78,7 +78,7 @@ export class Bulwark implements BulwarkMiddleware {
       const promptResult = await this.scanPrompt(prompt);
 
       if (!promptResult.safe && promptResult.action === 'block') {
-        throw new BulwarkError('Prompt blocked by Bulwark', promptResult);
+        throw new PromptwallError('Prompt blocked by Promptwall', promptResult);
       }
 
       const effectivePrompt = promptResult.redacted ?? prompt;
@@ -90,7 +90,7 @@ export class Bulwark implements BulwarkMiddleware {
       if (typeof response === 'string') {
         const responseResult = await this.scanResponse(response);
         if (!responseResult.safe && responseResult.action === 'block') {
-          throw new BulwarkError('Response blocked by Bulwark', responseResult);
+          throw new PromptwallError('Response blocked by Promptwall', responseResult);
         }
       }
 
@@ -102,12 +102,12 @@ export class Bulwark implements BulwarkMiddleware {
 /**
  * Custom error class with scan result attached
  */
-export class BulwarkError extends Error {
+export class PromptwallError extends Error {
   public result: ScanResult;
 
   constructor(message: string, result: ScanResult) {
     super(message);
-    this.name = 'BulwarkError';
+    this.name = 'PromptwallError';
     this.result = result;
   }
 }

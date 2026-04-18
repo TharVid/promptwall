@@ -1,26 +1,26 @@
 /**
  * Express middleware — protect your LLM API routes
  *
- * Install: npm install express bulwark
+ * Install: npm install express promptwall
  */
 
 // import express from 'express';
-// import bulwark from 'bulwark';
+// import promptwall from 'promptwall';
 
-import bulwark, { type ScanResult } from '../src';
+import promptwall, { type ScanResult } from '../src';
 
 // Simulated express types for example
-type Request = { body: { prompt?: string }; bulwark?: ScanResult };
+type Request = { body: { prompt?: string }; promptwall?: ScanResult };
 type Response = { status(code: number): Response; json(data: unknown): Response };
 type NextFunction = () => void;
 
 /**
  * Create Express middleware that scans request body for threats.
  * Drop this into any route:
- *   app.post('/api/chat', bulwarkMiddleware(), chatHandler);
+ *   app.post('/api/chat', promptwallMiddleware(), chatHandler);
  */
-function bulwarkMiddleware(options?: Parameters<typeof bulwark>[0]) {
-  const guard = bulwark({
+function promptwallMiddleware(options?: Parameters<typeof promptwall>[0]) {
+  const guard = promptwall({
     mode: 'block',
     threshold: 0.7,
     ...options,
@@ -33,11 +33,11 @@ function bulwarkMiddleware(options?: Parameters<typeof bulwark>[0]) {
     const result = await guard.scanPrompt(prompt);
 
     // Attach result to request for downstream use
-    req.bulwark = result;
+    req.promptwall = result;
 
     if (!result.safe && result.action === 'block') {
       return res.status(400).json({
-        error: 'Request blocked by Bulwark',
+        error: 'Request blocked by Promptwall',
         score: result.score,
         findings: result.findings.map(f => f.description),
       });
@@ -54,25 +54,25 @@ const app = express();
 app.use(express.json());
 
 // Protect all LLM routes
-app.post('/api/chat', bulwarkMiddleware(), async (req, res) => {
-  // req.bulwark contains the scan result
+app.post('/api/chat', promptwallMiddleware(), async (req, res) => {
+  // req.promptwall contains the scan result
   const response = await callYourLLM(req.body.prompt);
   res.json({ response });
 });
 
 // Or use redact mode — sanitize input before sending to LLM
-app.post('/api/chat-safe', bulwarkMiddleware({
+app.post('/api/chat-safe', promptwallMiddleware({
   mode: 'redact',
-  rules: [bulwark.pii(), bulwark.pci()],
+  rules: [promptwall.pii(), promptwall.pci()],
   threshold: 0.5,
 }), async (req, res) => {
-  const safePrompt = req.bulwark?.redacted ?? req.body.prompt;
+  const safePrompt = req.promptwall?.redacted ?? req.body.prompt;
   const response = await callYourLLM(safePrompt);
   res.json({ response });
 });
 
-app.listen(3000, () => console.log('Protected by Bulwark 🛡️'));
+app.listen(3000, () => console.log('Protected by Promptwall 🛡️'));
 */
 
 console.log('Express middleware example — see comments for usage');
-export { bulwarkMiddleware };
+export { promptwallMiddleware };

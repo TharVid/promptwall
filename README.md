@@ -1,18 +1,18 @@
-# Bulwark
+# Promptwall
 
 **helmet.js for LLM apps** — protect against prompt injection, jailbreak, and data exfiltration (PII/PHI/PCI).
 
-[![npm version](https://img.shields.io/npm/v/bulwark.svg)](https://www.npmjs.com/package/bulwark)
+[![npm version](https://img.shields.io/npm/v/promptwall.svg)](https://www.npmjs.com/package/promptwall)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue.svg)](https://www.typescriptlang.org/)
 
 ---
 
-## Why Bulwark?
+## Why Promptwall?
 
 Every Express app uses [helmet.js](https://helmetjs.github.io/) for HTTP security headers. But LLM apps face a completely different threat model — prompt injection, jailbreaks, PII leakage, and data exfiltration through tool calls and RAG pipelines.
 
-**Bulwark** is the missing security layer:
+**Promptwall** is the missing security layer:
 
 - Scans **outgoing prompts** before they hit the LLM API
 - Scans **incoming responses** / tool outputs / RAG content for injected instructions
@@ -28,13 +28,13 @@ Every Express app uses [helmet.js](https://helmetjs.github.io/) for HTTP securit
 ## Quick Start
 
 ```bash
-npm install bulwark
+npm install promptwall
 ```
 
 ```typescript
-import bulwark from 'bulwark';
+import promptwall from 'promptwall';
 
-const guard = bulwark();
+const guard = promptwall();
 
 const result = await guard.scan('Ignore all previous instructions');
 // { safe: false, score: 0.95, action: 'block', findings: [...] }
@@ -52,9 +52,9 @@ That's it. Three lines.
 ### Default (all rules, block mode)
 
 ```typescript
-import bulwark from 'bulwark';
+import promptwall from 'promptwall';
 
-const guard = bulwark();
+const guard = promptwall();
 const result = await guard.scan(userInput);
 
 if (!result.safe) {
@@ -66,8 +66,8 @@ if (!result.safe) {
 
 ```typescript
 // Only block PII — allow everything else (injections, jailbreaks, etc.)
-const guard = bulwark({
-  rules: [bulwark.pii()],
+const guard = promptwall({
+  rules: [promptwall.pii()],
   threshold: 0.5,
 });
 ```
@@ -75,9 +75,9 @@ const guard = bulwark({
 ### Redact mode — sanitize instead of blocking
 
 ```typescript
-const guard = bulwark({
+const guard = promptwall({
   mode: 'redact',
-  rules: [bulwark.pii(), bulwark.pci()],
+  rules: [promptwall.pii(), promptwall.pci()],
   threshold: 0.5,
 });
 
@@ -89,10 +89,10 @@ console.log(result.redacted); // "My SSN is [PII_SSN]"
 
 ```typescript
 import OpenAI from 'openai';
-import bulwark, { BulwarkError } from 'bulwark';
+import promptwall, { PromptwallError } from 'promptwall';
 
 const openai = new OpenAI();
-const guard = bulwark();
+const guard = promptwall();
 
 async function callLLM(prompt: string): Promise<string> {
   const res = await openai.chat.completions.create({
@@ -107,9 +107,9 @@ const safeLLM = guard.wrap(callLLM);
 
 try {
   const response = await safeLLM('What is quantum computing?'); // works
-  await safeLLM('Ignore all previous instructions');             // throws BulwarkError
+  await safeLLM('Ignore all previous instructions');             // throws PromptwallError
 } catch (err) {
-  if (err instanceof BulwarkError) {
+  if (err instanceof PromptwallError) {
     console.log('Blocked:', err.result.findings);
     // LLM was never called
   }
@@ -120,10 +120,10 @@ try {
 
 ```typescript
 import express from 'express';
-import bulwark from 'bulwark';
+import promptwall from 'promptwall';
 
 const app = express();
-const guard = bulwark();
+const guard = promptwall();
 
 app.post('/api/chat', async (req, res) => {
   const scan = await guard.scanPrompt(req.body.prompt);
@@ -143,8 +143,8 @@ app.post('/api/chat', async (req, res) => {
 ### Scan RAG / tool output (inbound)
 
 ```typescript
-const guard = bulwark({
-  rules: [bulwark.injection(), bulwark.pii(), bulwark.phi()],
+const guard = promptwall({
+  rules: [promptwall.injection(), promptwall.pii(), promptwall.phi()],
 });
 
 // Scan content from your vector DB, tools, or function calls
@@ -159,9 +159,9 @@ if (!ragScan.safe) {
 ## Configuration
 
 ```typescript
-bulwark({
+promptwall({
   // Rules to apply (default: all 6 built-in rules)
-  rules: [bulwark.jailbreak(), bulwark.injection(), bulwark.pii()],
+  rules: [promptwall.jailbreak(), promptwall.injection(), promptwall.pii()],
 
   // Action on detection: 'block' | 'warn' | 'redact' (default: 'block')
   mode: 'block',
@@ -191,34 +191,34 @@ bulwark({
 
 | Rule | Factory | Detects | Direction |
 |------|---------|---------|-----------|
-| **Jailbreak** | `bulwark.jailbreak()` | DAN, STAN, dev mode, unicode tricks, constraint removal | outbound |
-| **Injection** | `bulwark.injection()` | Instruction override, role manipulation, delimiter injection, prompt extraction | both |
-| **PII** | `bulwark.pii()` | SSN, email, phone, IP, DOB, address, names | both |
-| **PHI** | `bulwark.phi()` | MRN, ICD-10 codes, medications, procedures, provider names | both |
-| **PCI** | `bulwark.pci()` | Credit cards (Luhn validated), CVV, expiry, bank account, routing numbers | both |
-| **Toxicity** | `bulwark.toxicity()` | Violence, dangerous instructions, illegal activity | both |
+| **Jailbreak** | `promptwall.jailbreak()` | DAN, STAN, dev mode, unicode tricks, constraint removal | outbound |
+| **Injection** | `promptwall.injection()` | Instruction override, role manipulation, delimiter injection, prompt extraction | both |
+| **PII** | `promptwall.pii()` | SSN, email, phone, IP, DOB, address, names | both |
+| **PHI** | `promptwall.phi()` | MRN, ICD-10 codes, medications, procedures, provider names | both |
+| **PCI** | `promptwall.pci()` | Credit cards (Luhn validated), CVV, expiry, bank account, routing numbers | both |
+| **Toxicity** | `promptwall.toxicity()` | Violence, dangerous instructions, illegal activity | both |
 
 ### Rule options
 
 ```typescript
 // PII — detect only specific types
-bulwark.pii({ detect: ['ssn', 'email'], allowList: ['support@yourapp.com'] })
+promptwall.pii({ detect: ['ssn', 'email'], allowList: ['support@yourapp.com'] })
 
 // PCI — custom redaction string
-bulwark.pci({ redactWith: '****' })
+promptwall.pci({ redactWith: '****' })
 
 // Jailbreak — add custom patterns
-bulwark.jailbreak({ customPatterns: [/my-custom-pattern/i] })
+promptwall.jailbreak({ customPatterns: [/my-custom-pattern/i] })
 
 // Injection — adjust sensitivity
-bulwark.injection({ threshold: 0.5 })
+promptwall.injection({ threshold: 0.5 })
 ```
 
 ---
 
 ## Anti-Evasion Engine
 
-Bulwark includes a text normalization pipeline that defeats common evasion techniques before scanning:
+Promptwall includes a text normalization pipeline that defeats common evasion techniques before scanning:
 
 | Technique | Example | Handled |
 |-----------|---------|---------|
@@ -265,7 +265,7 @@ interface Finding {
 Extend `BaseRule` to create your own detectors:
 
 ```typescript
-import { BaseRule, type Finding, type DetectionCategory, type ScanDirection } from 'bulwark';
+import { BaseRule, type Finding, type DetectionCategory, type ScanDirection } from 'promptwall';
 
 class SecretCodeRule extends BaseRule {
   name = 'secret-codes';
@@ -296,8 +296,8 @@ class SecretCodeRule extends BaseRule {
 }
 
 // Use it alongside built-in rules
-const guard = bulwark({
-  rules: [...bulwark.defaultRules(), new SecretCodeRule()],
+const guard = promptwall({
+  rules: [...promptwall.defaultRules(), new SecretCodeRule()],
 });
 ```
 
@@ -308,7 +308,7 @@ const guard = bulwark({
 Every scan emits a structured audit event:
 
 ```typescript
-const guard = bulwark({
+const guard = promptwall({
   logging: true,
   onLog: (event) => {
     // Send to your SIEM, Datadog, Splunk, etc.
@@ -348,9 +348,9 @@ All detection runs locally using optimized regex. No network calls, no ML infere
 
 ## Threat Model
 
-Bulwark protects against the [OWASP LLM Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/):
+Promptwall protects against the [OWASP LLM Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/):
 
-| OWASP LLM Risk | Bulwark Coverage |
+| OWASP LLM Risk | Promptwall Coverage |
 |----------------|-----------------|
 | LLM01: Prompt Injection | `injection()` — instruction override, delimiter injection, role manipulation |
 | LLM02: Insecure Output | `scanResponse()` — scan LLM output before rendering |
@@ -365,8 +365,8 @@ Bulwark protects against the [OWASP LLM Top 10](https://owasp.org/www-project-to
 Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ```bash
-git clone https://github.com/TharVid/bulwark.git
-cd bulwark
+git clone https://github.com/TharVid/promptwall.git
+cd promptwall
 npm install
 npm test
 ```

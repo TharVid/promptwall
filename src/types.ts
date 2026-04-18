@@ -1,5 +1,5 @@
 /**
- * Bulwark — helmet.js for LLM apps
+ * Promptwall — helmet.js for LLM apps
  * Core type definitions
  */
 
@@ -125,9 +125,9 @@ export interface ToxicityRuleOptions {
   threshold?: number;
 }
 
-// ─── Bulwark Configuration ──────────────────────────────────────
+// ─── Promptwall Configuration ──────────────────────────────────────
 
-export interface BulwarkOptions {
+export interface PromptwallOptions {
   /** Rules to apply (default: all built-in rules) */
   rules?: Rule[];
   /** Default action mode (default: 'block') */
@@ -158,7 +158,7 @@ export interface AuditEvent {
 
 // ─── Middleware Types ────────────────────────────────────────────
 
-export interface BulwarkMiddleware {
+export interface PromptwallMiddleware {
   /** Scan outgoing prompt before sending to LLM */
   scanPrompt(text: string): Promise<ScanResult>;
   /** Scan incoming response/tool output from LLM */
