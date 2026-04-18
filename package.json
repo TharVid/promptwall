@@ -1,6 +1,6 @@
 {
   "name": "promptwall",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Lightweight runtime security for LLM apps — block prompt injection, jailbreaks, and data exfiltration (PII/PHI/PCI) before they reach your model",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

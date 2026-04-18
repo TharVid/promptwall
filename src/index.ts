@@ -63,6 +63,13 @@ promptwall.defaultRules = defaultRules;
 
 export default promptwall;
 
+// CJS/ESM interop: ensure `require('promptwall')` returns the factory directly
+// and `import promptwall from 'promptwall'` works in ESM via .default
+module.exports = promptwall;
+module.exports.default = promptwall;
+module.exports.Promptwall = Promptwall;
+module.exports.PromptwallError = PromptwallError;
+
 // Named exports for fine-grained imports
 export { Promptwall, PromptwallError } from './promptwall';
 export { Scanner } from './scanner';
