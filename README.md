@@ -1,6 +1,6 @@
 # Promptwall
 
-**helmet.js for LLM apps** — protect against prompt injection, jailbreak, and data exfiltration (PII/PHI/PCI).
+**Lightweight runtime security for LLM apps** — block prompt injection, jailbreaks, and data exfiltration before they reach your model.
 
 [![npm version](https://img.shields.io/npm/v/promptwall.svg)](https://www.npmjs.com/package/promptwall)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -10,9 +10,9 @@
 
 ## Why Promptwall?
 
-Every Express app uses [helmet.js](https://helmetjs.github.io/) for HTTP security headers. But LLM apps face a completely different threat model — prompt injection, jailbreaks, PII leakage, and data exfiltration through tool calls and RAG pipelines.
+LLM apps face threats that traditional security doesn't cover — prompt injection, jailbreaks, PII leakage, and data exfiltration through tool calls and RAG pipelines. Promptwall sits between your app and the LLM, scanning everything going in and coming out.
 
-**Promptwall** is the missing security layer:
+Drop it in with one line. No config needed. No external APIs. All detection runs locally:
 
 - Scans **outgoing prompts** before they hit the LLM API
 - Scans **incoming responses** / tool outputs / RAG content for injected instructions

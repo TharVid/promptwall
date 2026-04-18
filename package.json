@@ -1,7 +1,7 @@
 {
   "name": "promptwall",
   "version": "0.1.0",
-  "description": "helmet.js for LLM apps \u2014 protect against prompt injection, jailbreak, and data exfiltration (PII/PHI/PCI)",
+  "description": "Lightweight runtime security for LLM apps — block prompt injection, jailbreaks, and data exfiltration (PII/PHI/PCI) before they reach your model",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
